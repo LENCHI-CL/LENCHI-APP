@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LENCHI — Lenguas de Chile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --hueso: #f5f0e8;
+      --hueso-oscuro: #ede6d8;
+      --texto: #1c1c1c;
+      --texto-muted: #7a7268;
+      --borde: #ddd6c8;
+      --blanco: #ffffff;
+      --pueblo-primario: #3d4f5c;
+      --pueblo-claro: #8fa3b0;
+      --pueblo-acento: #6b8fa3;
+      --pueblo-acento-claro: #c8dce8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--hueso);
+      color: var(--texto);
+      min-height: 100vh;
+      max-width: 420px;
+      margin: 0 auto;
+      overflow-x: hidden;
+    }
+
+    /* ════════════════════════════
+       SPLASH SCREEN
+    ════════════════════════════ */
+    #splash {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--pueblo-primario);
+      padding: 48px 32px;
+      transition: background 0.5s;
+    }
+
+    .splash-titulo {
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .splash-sub {
+      font-size: 14px;
+      color: var(--pueblo-claro);
+      text-align: center;
+      letter-spacing: 0.04em;
+      margin-bottom: 64px;
+      transition: color 0.5s;
+    }
+
+    .splash-instruccion {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      margin-top: 48px;
+      letter-spacing: 0.04em;
+    }
+
+    .lenguas-grid {
+      display: flex;
+      flex-direction: row;
+      gap: 32px;
+      justify-content: center;
+    }
+
+    .lengua-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .lengua-btn:active { transform: scale(0.95); }
+
+    .lengua-circulo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      border: 2px solid rgba(255,255,255,0.25);
+      transition: border-color 0.2s;
+    }
+
+    .lengua-btn:active .lengua-circulo { border-color: rgba(255,255,255,0.6); }
+
+    .lengua-info .nombre {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      text-align: center;
+    }
+
+    .lengua-info .detalle {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    /* ════════════════════════════
+       DICCIONARIO
+    ════════════════════════════ */
+    #diccionario {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--pueblo-primario);
+      padding: 48px 24px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn-volver {
+      background: rgba(255,255,255,0.12);
+      border: none;
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .btn-volver:active { background: rgba(255,255,255,0.22); }
+
+    .header-titulo {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--pueblo-claro);
+      transition: color 0.4s;
+    }
+
+    .pueblo-banner {
+      margin: 14px 16px;
+      background: var(--pueblo-primario);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.4s;
+    }
+
+    .pueblo-banner .emoji { font-size: 28px; }
+    .pueblo-banner .titulo { color: #fff; font-size: 15px; font-weight: 600; }
+    .pueblo-banner .desc { color: var(--pueblo-claro); font-size: 11px; margin-top: 2px; line-height: 1.4; transition: color 0.4s; }
+
+    .search-wrap { padding: 0 16px 12px; }
+
+    .search-box {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
+    .search-box input {
+      border: none; outline: none;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      background: transparent;
+      color: var(--texto);
+      width: 100%;
+    }
+    .search-box input::placeholder { color: var(--texto-muted); }
+
+    .categorias {
+      display: flex; gap: 8px;
+      padding: 0 16px 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .categorias::-webkit-scrollbar { display: none; }
+
+    .cat-btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      border: 1px solid var(--borde);
+      background: var(--blanco);
+      color: var(--texto-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .cat-btn.activo {
+      background: var(--pueblo-primario);
+      color: #fff;
+      border-color: var(--pueblo-primario);
+    }
+
+    .palabras {
+      padding: 0 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .palabra-card {
+      background: var(--blanco);
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .palabra-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .palabra-header .izq { display: flex; flex-direction: column; gap: 2px; }
+    .palabra-header .esp { font-size: 15px; font-weight: 500; color: var(--texto); }
+    .palabra-header .cat-tag { font-size: 11px; color: var(--pueblo-acento); font-weight: 500; transition: color 0.4s; }
+
+    .flecha { font-size: 18px; color: var(--texto-muted); transition: transform 0.2s; line-height: 1; }
+    .palabra-card.abierta .flecha { transform: rotate(180deg); }
+
+    .palabra-body {
+      display: none;
+      border-top: 1px solid var(--borde);
+      padding: 14px 16px;
+      background: var(--hueso-oscuro);
+    }
+    .palabra-card.abierta .palabra-body { display: block; }
+
+    .traduccion {
+      font-family: 'Lora', serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--pueblo-primario);
+      transition: color 0.4s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ SPLASH ══ -->
+  <div id="splash">
+    <div class="splash-titulo">LENCHI</div>
+    <div class="splash-sub">Lenguas de Chile</div>
+
+    <div class="lenguas-grid">
+      <div class="lengua-btn" onclick="entrarDiccionario('selknam')">
+        <div class="lengua-circulo" style="background:rgba(255,255,255,0.1);">🦅</div>
+        <div class="lengua-info">
+          <div class="nombre">Selknam</div>
+          <div class="detalle">Ona · Tierra del Fuego</div>
+        </div>
+      </div>
+      <div class="lengua-btn" onclick="entrarDiccionario('kunza')">
+        <div class="lengua-circulo" style="background:rgba(255,255,255,0.1);">🌵</div>
+        <div class="lengua-info">
+          <div class="nombre">Kunza</div>
+          <div class="detalle">Lickanantay · Atacama</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="splash-instruccion">Toca una lengua para explorar</div>
+  </div>
+
+  <!-- ══ DICCIONARIO ══ -->
+  <div id="diccionario">
+    <div class="header">
+      <div class="header-top">
+        <button class="btn-volver" onclick="volverSplash()">←</button>
+        <div>
+          <div class="header-titulo">LENCHI</div>
+          <div class="header-sub">Lenguas de Chile</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pueblo-banner" id="banner">
+      <div class="emoji" id="banner-emoji">🦅</div>
+      <div class="info">
+        <div class="titulo" id="banner-titulo">Pueblo Selknam (Ona)</div>
+        <div class="desc" id="banner-desc">Tierra del Fuego · Lengua en peligro crítico de extinción</div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Buscar palabra en español..." id="buscador" oninput="filtrar()" />
+      </div>
+    </div>
+
+    <div class="categorias">
+      <button class="cat-btn activo" onclick="filtrarCat(this, 'todas')">Todas</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'naturaleza')">🌿 Naturaleza</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'cuerpo')">🖐️ Cuerpo</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'familia')">👨‍👩‍👧 Familia</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'animales')">🦊 Animales</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'hogar')">🏠 Hogar</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'verbos')">⚡ Verbos</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'adjetivos')">🎨 Adjetivos</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'numeros')">🔢 Números</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'tiempo')">🕐 Tiempo</button>
+      <button class="cat-btn" onclick="filtrarCat(this, 'expresiones')">💬 Expresiones</button>
+    </div>
+
+    <div class="palabras" id="lista-palabras"></div>
+  </div>
+
+<script>
+  const paletas = {
+    selknam: { primario: '#3d4f5c', claro: '#8fa3b0', acento: '#6b8fa3', acentoClaro: '#c8dce8' },
+    kunza:   { primario: '#6b3a1f', claro: '#c4956a', acento: '#c8702a', acentoClaro: '#f0c98a' }
+  };
+
+  const datos = {
+    selknam: {
+      emoji: '🦅',
+      titulo: 'Pueblo Selknam (Ona)',
+      desc: 'Tierra del Fuego · Lengua en peligro crítico de extinción',
+      palabras: [
+        { esp: 'Tierra / suelo', traduccion: 'Shámen', cat: 'naturaleza' },
+        { esp: 'Agua',           traduccion: 'Wè',     cat: 'naturaleza' },
+        { esp: 'Fuego',          traduccion: 'Kéel',   cat: 'naturaleza' },
+        { esp: 'Viento',         traduccion: 'Àan',    cat: 'naturaleza' },
+        { esp: 'Madre',          traduccion: 'Kòo',    cat: 'familia'    },
+        { esp: 'Padre',          traduccion: 'Tàan',   cat: 'familia'    },
+        { esp: 'Hijo / hija',    traduccion: 'Ôon',    cat: 'familia'    },
+        { esp: 'Mano',           traduccion: 'Màan',   cat: 'cuerpo'     },
+        { esp: 'Ojo',            traduccion: 'Sàan',   cat: 'cuerpo'     },
+        { esp: 'Guanaco',        traduccion: 'Shòon',  cat: 'animales'   },
+        { esp: 'Zorro',          traduccion: 'Kàshel', cat: 'animales'   },
+      ]
+    },
+    kunza: {
+      emoji: '🌵',
+      titulo: 'Pueblo Lickanantay (Kunza)',
+      desc: 'Atacama · Lengua extinta, en proceso de revitalización',
+      palabras: [
+        { esp: 'Tierra / Suelo',              traduccion: 'Ckapar',          cat: 'naturaleza' },
+        { esp: 'Agua',                         traduccion: 'Puri',            cat: 'naturaleza' },
+        { esp: 'Sangre / color rojo arcilloso',traduccion: 'Lari',            cat: 'naturaleza' },
+        { esp: 'Sal',                          traduccion: 'Cachi',           cat: 'naturaleza' },
+        { esp: 'Sol',                          traduccion: 'Tcachi',          cat: 'naturaleza' },
+        { esp: 'Viento',                       traduccion: 'Alis',            cat: 'naturaleza' },
+        { esp: 'Viento frío de la cordillera', traduccion: 'Hoiru',           cat: 'naturaleza' },
+        { esp: 'Piedra / Roca',               traduccion: 'Tocnar',          cat: 'naturaleza' },
+        { esp: 'Cóndor',                       traduccion: 'Cúntur',          cat: 'naturaleza' },
+        { esp: 'Pueblo / Lugar de residencia', traduccion: 'Lican',           cat: 'naturaleza' },
+        { esp: 'Cerro / Montaña',             traduccion: 'Tata',            cat: 'naturaleza' },
+        { esp: 'Lluvia',                       traduccion: 'Saire',           cat: 'naturaleza' },
+        { esp: 'Nube',                         traduccion: 'Mula',            cat: 'naturaleza' },
+        { esp: 'Estrecho / Quebrada',         traduccion: 'Quire',           cat: 'naturaleza' },
+        { esp: 'Aire',                         traduccion: 'Hoi',             cat: 'naturaleza' },
+        { esp: 'Barro / Lodo',                traduccion: 'Cololo',          cat: 'naturaleza' },
+        { esp: 'Yerba / Pasto',               traduccion: 'Ckoila',          cat: 'naturaleza' },
+        { esp: 'Arena',                        traduccion: 'Chulul',          cat: 'naturaleza' },
+        { esp: 'Fuego',                        traduccion: 'Heve',            cat: 'naturaleza' },
+        { esp: 'Noche',                        traduccion: 'Isma',            cat: 'naturaleza' },
+        { esp: 'Día',                          traduccion: 'Chulu',           cat: 'naturaleza' },
+        { esp: 'Calor del sol',               traduccion: 'Ckapin',          cat: 'naturaleza' },
+        { esp: 'Estrella',                     traduccion: 'Hechar',          cat: 'naturaleza' },
+        { esp: 'Luna',                         traduccion: 'Paicho',          cat: 'naturaleza' },
+        { esp: 'Árbol / Madera',              traduccion: 'Sacka',           cat: 'naturaleza' },
+        { esp: 'Cabeza',                       traduccion: 'Cati',            cat: 'cuerpo'     },
+        { esp: 'Ojo',                          traduccion: 'Sama',            cat: 'cuerpo'     },
+        { esp: 'Nariz',                        traduccion: 'Signar',          cat: 'cuerpo'     },
+        { esp: 'Boca',                         traduccion: 'Tchei',           cat: 'cuerpo'     },
+        { esp: 'Oreja / Oído',               traduccion: 'Saire',           cat: 'cuerpo'     },
+        { esp: 'Pelo / Cabello',             traduccion: 'Quis',            cat: 'cuerpo'     },
+        { esp: 'Mano',                         traduccion: 'Tcapar',          cat: 'cuerpo'     },
+        { esp: 'Pie',                          traduccion: 'Sari',            cat: 'cuerpo'     },
+        { esp: 'Corazón',                      traduccion: 'Tulan',           cat: 'cuerpo'     },
+        { esp: 'Brazo',                        traduccion: 'Tchechar',        cat: 'cuerpo'     },
+        { esp: 'Sangre',                       traduccion: 'Lari',            cat: 'cuerpo'     },
+        { esp: 'Espalda',                      traduccion: 'Pocsi',           cat: 'cuerpo'     },
+        { esp: 'Diente',                       traduccion: 'Cuchu',           cat: 'cuerpo'     },
+        { esp: 'Lengua',                       traduccion: 'Haichari',        cat: 'cuerpo'     },
+        { esp: 'Barriga / Vientre',           traduccion: 'Huara',           cat: 'cuerpo'     },
+        { esp: 'Cuello',                       traduccion: 'Cconi',           cat: 'cuerpo'     },
+        { esp: 'Hueso',                        traduccion: 'Tchiccar',        cat: 'cuerpo'     },
+        { esp: 'Cara / Rostro',              traduccion: 'Mozo',            cat: 'cuerpo'     },
+        { esp: 'Pecho',                        traduccion: 'Penbi',           cat: 'cuerpo'     },
+        { esp: 'Uña',                          traduccion: 'Cuchi',           cat: 'cuerpo'     },
+        { esp: 'Hombre',                       traduccion: 'Sacka',           cat: 'familia'    },
+        { esp: 'Gente / Comunidad',           traduccion: 'Lican',           cat: 'familia'    },
+        { esp: 'Mujer',                        traduccion: 'Paico',           cat: 'familia'    },
+        { esp: 'Esposo / Marido',            traduccion: 'Cusa',            cat: 'familia'    },
+        { esp: 'Esposa',                       traduccion: 'Semba',           cat: 'familia'    },
+        { esp: 'Hijo',                         traduccion: 'Cussa',           cat: 'familia'    },
+        { esp: 'Hija',                         traduccion: 'Cussis',          cat: 'familia'    },
+        { esp: 'Padre',                        traduccion: 'Tata',            cat: 'familia'    },
+        { esp: 'Madre',                        traduccion: 'Sema',            cat: 'familia'    },
+        { esp: 'Abuelo',                       traduccion: 'Yaya',            cat: 'familia'    },
+        { esp: 'Hermano',                      traduccion: 'Cas',             cat: 'familia'    },
+        { esp: 'Hermana',                      traduccion: 'Cassi',           cat: 'familia'    },
+        { esp: 'Niño / Muchacho',            traduccion: 'Locma',           cat: 'familia'    },
+        { esp: 'Niña / Muchacha',            traduccion: 'Chana',           cat: 'familia'    },
+        { esp: 'Viejo / Anciano',            traduccion: 'Suni',            cat: 'familia'    },
+        { esp: 'Bebé / Recién nacido',       traduccion: 'Hoche',           cat: 'familia'    },
+        { esp: 'Tío',                          traduccion: 'Ama',             cat: 'familia'    },
+        { esp: 'Tía',                          traduccion: 'Ila',             cat: 'familia'    },
+        { esp: 'Amigo / Compañero',          traduccion: 'Sackan',          cat: 'familia'    },
+        { esp: 'Nosotros / Nuestro',         traduccion: 'Cunza',           cat: 'familia'    },
+        { esp: 'Guanaco',                      traduccion: 'Guanaco',         cat: 'animales'   },
+        { esp: 'Alpaca',                       traduccion: 'Paco',            cat: 'animales'   },
+        { esp: 'Llama',                        traduccion: 'Llama',           cat: 'animales'   },
+        { esp: 'Ratón de los cerros',         traduccion: 'Chululo',         cat: 'animales'   },
+        { esp: 'Gato silvestre / Puma',      traduccion: 'Ccololo',         cat: 'animales'   },
+        { esp: 'Pato',                         traduccion: 'Pili',            cat: 'animales'   },
+        { esp: 'Ganso silvestre andino',      traduccion: 'Huallata',        cat: 'animales'   },
+        { esp: 'Pez / Pescado',              traduccion: 'Lech',            cat: 'animales'   },
+        { esp: 'Mosca',                        traduccion: 'Cuca',            cat: 'animales'   },
+        { esp: 'Vicuña',                       traduccion: 'Chascar',         cat: 'animales'   },
+        { esp: 'Perro',                        traduccion: 'Aru',             cat: 'animales'   },
+        { esp: 'Gato',                         traduccion: 'Misi',            cat: 'animales'   },
+        { esp: 'Ñandú andino / Suri',        traduccion: 'Suri',            cat: 'animales'   },
+        { esp: 'Huevo',                        traduccion: 'Lulo',            cat: 'animales'   },
+        { esp: 'Búho',                         traduccion: 'Tuco',            cat: 'animales'   },
+        { esp: 'Casa / Hogar',               traduccion: 'Vasi',            cat: 'hogar'      },
+        { esp: 'Familia / Comunidad',        traduccion: 'Ayllu',           cat: 'hogar'      },
+        { esp: 'Ropa / Vestido',             traduccion: 'Patta',           cat: 'hogar'      },
+        { esp: 'Bebida',                       traduccion: 'Puri',            cat: 'hogar'      },
+        { esp: 'Maíz',                         traduccion: 'Tcaur',           cat: 'hogar'      },
+        { esp: 'Papa / Patata',              traduccion: 'Papo',            cat: 'hogar'      },
+        { esp: 'Plato / Vasija de barro',    traduccion: 'Loza',            cat: 'hogar'      },
+        { esp: 'Fogón / Cocina',             traduccion: 'Ckonza',          cat: 'hogar'      },
+        { esp: 'Bebida fermentada',           traduccion: 'Chicha',          cat: 'hogar'      },
+        { esp: 'Saco / Bolsa de lana',       traduccion: 'Saco',            cat: 'hogar'      },
+        { esp: 'Asiento / Silla',            traduccion: 'Tulan',           cat: 'hogar'      },
+        { esp: 'Hacha / Herramienta de piedra',traduccion: 'Hacha',         cat: 'hogar'      },
+        { esp: 'Cuchillo',                     traduccion: 'Quis',            cat: 'hogar'      },
+        { esp: 'Lana teñida',                 traduccion: 'Lari',            cat: 'hogar'      },
+        { esp: 'Pueblo de casas',             traduccion: 'Licán-vasi',      cat: 'hogar'      },
+        { esp: 'Zapato / Ojota',             traduccion: 'Cala',            cat: 'hogar'      },
+        { esp: 'Lugar de sal',               traduccion: 'Salar',           cat: 'hogar'      },
+        { esp: 'Frazada / Manta',            traduccion: 'Ccoi',            cat: 'hogar'      },
+        { esp: 'Casa del fuego / Cocina',    traduccion: 'Heve-vasi',       cat: 'hogar'      },
+        { esp: 'Piedra de moler',             traduccion: 'Tastil',          cat: 'hogar'      },
+        { esp: 'Ir',                           traduccion: 'I',               cat: 'verbos'     },
+        { esp: 'Venir',                        traduccion: 'Ccapar',          cat: 'verbos'     },
+        { esp: 'Hacer',                        traduccion: 'A',               cat: 'verbos'     },
+        { esp: 'Beber',                        traduccion: 'Puri-a',          cat: 'verbos'     },
+        { esp: 'Hablar / Decir',             traduccion: 'Tchei-a',         cat: 'verbos'     },
+        { esp: 'Ver / Mirar',                traduccion: 'Sama-a',          cat: 'verbos'     },
+        { esp: 'Oír / Escuchar',             traduccion: 'Saire-a',         cat: 'verbos'     },
+        { esp: 'Pensar',                       traduccion: 'Cati-a',          cat: 'verbos'     },
+        { esp: 'Comer',                        traduccion: 'Mutba',           cat: 'verbos'     },
+        { esp: 'Dormir',                       traduccion: 'Chuy',            cat: 'verbos'     },
+        { esp: 'Caminar / Andar',            traduccion: 'Sari-a',          cat: 'verbos'     },
+        { esp: 'Dar / Entregar',             traduccion: 'Ccoi-a',          cat: 'verbos'     },
+        { esp: 'Reír',                         traduccion: 'Huar',            cat: 'verbos'     },
+        { esp: 'Volver / Regresar',          traduccion: 'Ccuti',           cat: 'verbos'     },
+        { esp: 'Morir',                        traduccion: 'Manzan',          cat: 'verbos'     },
+        { esp: 'Vivir / Estar vivo',         traduccion: 'Haich',           cat: 'verbos'     },
+        { esp: 'Ser / Estar',                traduccion: 'Cun',             cat: 'verbos'     },
+        { esp: 'Ladrar / Gritar',            traduccion: 'Aru-a',           cat: 'verbos'     },
+        { esp: 'Trabajar la piedra / Construir',traduccion: 'Tocnar-a',     cat: 'verbos'     },
+        { esp: 'Ir al pueblo',               traduccion: 'Lican-i',         cat: 'verbos'     },
+        { esp: 'Grande',                       traduccion: 'Capi',            cat: 'adjetivos'  },
+        { esp: 'Rojo',                         traduccion: 'Lari',            cat: 'adjetivos'  },
+        { esp: 'Verde',                        traduccion: 'Tcari',           cat: 'adjetivos'  },
+        { esp: 'Negro',                        traduccion: 'Cchi',            cat: 'adjetivos'  },
+        { esp: 'Blanco',                       traduccion: 'Suri',            cat: 'adjetivos'  },
+        { esp: 'Pequeño / Chico',            traduccion: 'Chul',            cat: 'adjetivos'  },
+        { esp: 'Frío',                         traduccion: 'Hoi',             cat: 'adjetivos'  },
+        { esp: 'Caliente / Cálido',          traduccion: 'Ckapin',          cat: 'adjetivos'  },
+        { esp: 'Bueno',                        traduccion: 'Hi',              cat: 'adjetivos'  },
+        { esp: 'Malo',                         traduccion: 'Mal',             cat: 'adjetivos'  },
+        { esp: 'Alto',                         traduccion: 'Viti',            cat: 'adjetivos'  },
+        { esp: 'Bajo / Corto',               traduccion: 'Chuto',           cat: 'adjetivos'  },
+        { esp: 'Gris / Nublado',             traduccion: 'Mula',            cat: 'adjetivos'  },
+        { esp: 'Salado',                       traduccion: 'Cachi',           cat: 'adjetivos'  },
+        { esp: 'Angosto',                      traduccion: 'Quire',           cat: 'adjetivos'  },
+        { esp: 'Uno',                          traduccion: 'Sem',             cat: 'numeros'    },
+        { esp: 'Dos',                          traduccion: 'Poya',            cat: 'numeros'    },
+        { esp: 'Tres',                         traduccion: 'Phalamu',         cat: 'numeros'    },
+        { esp: 'Cuatro',                       traduccion: 'Champa',          cat: 'numeros'    },
+        { esp: 'Cinco',                        traduccion: 'Suto',            cat: 'numeros'    },
+        { esp: 'Seis',                         traduccion: 'Mutla',           cat: 'numeros'    },
+        { esp: 'Siete',                        traduccion: 'Chauco',          cat: 'numeros'    },
+        { esp: 'Ocho',                         traduccion: 'Cojsu',           cat: 'numeros'    },
+        { esp: 'Nueve',                        traduccion: 'Lara',            cat: 'numeros'    },
+        { esp: 'Diez',                         traduccion: 'Phutchi',         cat: 'numeros'    },
+        { esp: 'Once',                         traduccion: 'Phutchi-sem',     cat: 'numeros'    },
+        { esp: 'Doce',                         traduccion: 'Phutchi-poya',    cat: 'numeros'    },
+        { esp: 'Trece',                        traduccion: 'Phutchi-phalamu', cat: 'numeros'    },
+        { esp: 'Catorce',                      traduccion: 'Phutchi-champa',  cat: 'numeros'    },
+        { esp: 'Quince',                       traduccion: 'Phutchi-suto',    cat: 'numeros'    },
+        { esp: 'Dieciséis',                   traduccion: 'Phutchi-mutla',   cat: 'numeros'    },
+        { esp: 'Diecisiete',                   traduccion: 'Phutchi-chauco',  cat: 'numeros'    },
+        { esp: 'Dieciocho',                    traduccion: 'Phutchi-cojsu',   cat: 'numeros'    },
+        { esp: 'Diecinueve',                   traduccion: 'Phutchi-lara',    cat: 'numeros'    },
+        { esp: 'Veinte',                       traduccion: 'Poya-phutchi',    cat: 'numeros'    },
+        { esp: 'Hoy / Este día',             traduccion: 'Chulu',           cat: 'tiempo'     },
+        { esp: 'Anoche / En la noche',       traduccion: 'Isma',            cat: 'tiempo'     },
+        { esp: 'Mañana',                       traduccion: 'Mut',             cat: 'tiempo'     },
+        { esp: 'Ayer',                         traduccion: 'Ccuti-chulu',     cat: 'tiempo'     },
+        { esp: 'Cerro alto / Arriba',        traduccion: 'Tata-viti',       cat: 'tiempo'     },
+        { esp: 'Quebrada baja / Abajo',      traduccion: 'Quire-chuto',     cat: 'tiempo'     },
+        { esp: 'Sol alto / Mediodía',        traduccion: 'Tcachi-viti',     cat: 'tiempo'     },
+        { esp: 'Bajo tierra',                 traduccion: 'Ckapar-chuto',    cat: 'tiempo'     },
+        { esp: 'Noche estrellada',            traduccion: 'Hechar-isma',     cat: 'tiempo'     },
+        { esp: 'Mes / Ciclo de una luna',    traduccion: 'Paicho-chulu',    cat: 'tiempo'     },
+        { esp: 'Yo',                           traduccion: 'A',               cat: 'expresiones'},
+        { esp: 'Tú',                           traduccion: 'Che',             cat: 'expresiones'},
+        { esp: 'Él / Ella',                  traduccion: 'I',               cat: 'expresiones'},
+        { esp: 'Nosotros',                     traduccion: 'Cunza',           cat: 'expresiones'},
+        { esp: 'Ustedes',                      traduccion: 'Che-cuna',        cat: 'expresiones'},
+        { esp: 'Ellos / Ellas',              traduccion: 'I-cuna',          cat: 'expresiones'},
+        { esp: '¿Qué?',                       traduccion: '¿Ima?',           cat: 'expresiones'},
+        { esp: '¿Quién?',                     traduccion: '¿Quia?',          cat: 'expresiones'},
+        { esp: '¿Dónde?',                    traduccion: '¿Canchi?',        cat: 'expresiones'},
+        { esp: '¿Qué haces?',               traduccion: '¿Ima-a?',         cat: 'expresiones'},
+        { esp: 'Sí',                           traduccion: 'Hái',             cat: 'expresiones'},
+        { esp: 'No',                           traduccion: 'Aca',             cat: 'expresiones'},
+        { esp: 'Así sea / Amén',             traduccion: 'Cun-ma',          cat: 'expresiones'},
+        { esp: 'Ven tú',                      traduccion: 'Ccapar-che',      cat: 'expresiones'},
+        { esp: 'Ve tú',                       traduccion: 'I-che',           cat: 'expresiones'},
+        { esp: 'Buenos días',                 traduccion: 'Hi-chulu',        cat: 'expresiones'},
+        { esp: 'Buenas noches',               traduccion: 'Hi-isma',         cat: 'expresiones'},
+        { esp: 'Nuestro pueblo',              traduccion: 'Cunza-lican',     cat: 'expresiones'},
+        { esp: 'Mi corazón',                  traduccion: 'A-tulan',         cat: 'expresiones'},
+        { esp: 'No hay agua',                 traduccion: 'Aca-puri',        cat: 'expresiones'},
+        { esp: 'Los habitantes del territorio',traduccion: 'Lickanantay',    cat: 'expresiones'},
+      ]
+    }
+  };
+
+  let puebloActivo = 'selknam';
+  let catActiva = 'todas';
+  let textoBusqueda = '';
+
+  function aplicarPaleta(pueblo) {
+    const p = paletas[pueblo];
+    const r = document.documentElement.style;
+    r.setProperty('--pueblo-primario', p.primario);
+    r.setProperty('--pueblo-claro', p.claro);
+    r.setProperty('--pueblo-acento', p.acento);
+    r.setProperty('--pueblo-acento-claro', p.acentoClaro);
+  }
+
+  function entrarDiccionario(pueblo) {
+    puebloActivo = pueblo;
+    catActiva = 'todas';
+    textoBusqueda = '';
+    aplicarPaleta(pueblo);
+    const d = datos[pueblo];
+    document.getElementById('banner-emoji').textContent = d.emoji;
+    document.getElementById('banner-titulo').textContent = d.titulo;
+    document.getElementById('banner-desc').textContent = d.desc;
+    document.getElementById('buscador').value = '';
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('activo'));
+    document.querySelectorAll('.cat-btn')[0].classList.add('activo');
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('diccionario').style.display = 'block';
+    renderPalabras();
+    window.scrollTo(0, 0);
+  }
+
+  function volverSplash() {
+    document.getElementById('diccionario').style.display = 'none';
+    document.getElementById('splash').style.display = 'flex';
+    window.scrollTo(0, 0);
+  }
+
+  function renderPalabras() {
+    const lista = document.getElementById('lista-palabras');
+    const palabras = datos[puebloActivo].palabras.filter(p => {
+      const matchCat = catActiva === 'todas' || p.cat === catActiva;
+      const matchBusq = p.esp.toLowerCase().includes(textoBusqueda) || p.traduccion.toLowerCase().includes(textoBusqueda);
+      return matchCat && matchBusq;
+    });
+
+    if (palabras.length === 0) {
+      lista.innerHTML = '<p style="text-align:center;color:var(--texto-muted);font-size:14px;padding:32px 0;">No se encontraron palabras.</p>';
+      return;
+    }
+
+    lista.innerHTML = palabras.map((p, i) => `
+      <div class="palabra-card" id="card-${i}">
+        <div class="palabra-header" onclick="toggleCard(${i})">
+          <div class="izq">
+            <span class="esp">${p.esp}</span>
+            <span class="cat-tag">${p.cat.charAt(0).toUpperCase() + p.cat.slice(1)}</span>
+          </div>
+          <span class="flecha">⌄</span>
+        </div>
+        <div class="palabra-body">
+          <span class="traduccion">${p.traduccion}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleCard(i) {
+    const card = document.getElementById('card-' + i);
+    const yaAbierta = card.classList.contains('abierta');
+    document.querySelectorAll('.palabra-card').forEach(c => c.classList.remove('abierta'));
+    if (!yaAbierta) card.classList.add('abierta');
+  }
+
+  function filtrarCat(el, cat) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('activo'));
+    el.classList.add('activo');
+    catActiva = cat;
+    renderPalabras();
+  }
+
+  function filtrar() {
+    textoBusqueda = document.getElementById('buscador').value.toLowerCase();
+    renderPalabras();
+  }
+</script>
+</body>
+</html>
